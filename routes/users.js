@@ -1,24 +1,37 @@
 const express = require('express')
 const router = express.Router();
 const UserController = require('../database/controllers/users');
+const jwt = require('jsonwebtoken');
+const authenticateJWT = require("../helpers/authenticate");
 
 router.all('/', (req, res, next) => {
     res.status(200);
     next();
 });
 
-router.get('/', async (req, res, next) => {
+router.get('/', authenticateJWT, async (req, res, next) => {
     try {
         const found = await UserController.getAll();
         res.send(found)
     } catch (err) {
-       next(err);
+        next(err);
+    }
+    res.end();
+})
+
+router.get('/me', authenticateJWT, async (req, res, next) => {
+    try {
+        const email = req.user.email;
+        const found = await UserController.getByEmail(email);
+        res.send(found)
+    } catch (err) {
+        next(err);
     }
     res.end();
 })
 
 
-router.post('/sign-up', async(req, res, next) => {
+router.post('/sign-up', async (req, res, next) => {
     if (req.body) {
         try {
             const newUser = await UserController.create(req.body);
@@ -30,7 +43,7 @@ router.post('/sign-up', async(req, res, next) => {
     }
 })
 
-router.post('/sign-in', async(req, res, next) => {
+router.post('/sign-in', async (req, res, next) => {
     if (req.body) {
         try {
             const {email, password} = req.body;
@@ -40,7 +53,10 @@ router.post('/sign-in', async(req, res, next) => {
             } else if (foundUser.password !== password) {
                 res.status(400).send({message: 'Wrong password'});
             } else {
-                res.send(foundUser);
+                const accessToken = jwt.sign({email}, process.env.JWT_SECRET, {expiresIn: '1h'});
+                res.json({
+                    accessToken
+                });
             }
 
         } catch (err) {
