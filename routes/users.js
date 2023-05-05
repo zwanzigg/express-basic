@@ -34,8 +34,17 @@ router.get('/me', authenticateJWT, async (req, res, next) => {
 router.post('/sign-up', async (req, res, next) => {
     if (req.body) {
         try {
-            const newUser = await UserController.create(req.body);
-            res.send(newUser);
+            const {email, password, firstName, lastName} = req.body;
+            const newUser = await UserController.create({
+                email,
+                password,
+                first_name: firstName,
+                last_name: lastName
+            });
+            const accessToken = jwt.sign({email: newUser.email}, process.env.JWT_SECRET, {expiresIn: '1h'});
+            res.json({
+                accessToken
+            });
         } catch (err) {
             next(err);
         }
