@@ -1,7 +1,9 @@
 const UserModel = require('../models/User')
 const CustomError = require("../../helpers/custom-error");
 const jwt = require("jsonwebtoken");
-const {ERROR_CODES} = require("../../common/constants");
+const {ERROR_CODES,
+    JWT_SECRET,
+    JWT_EXPIRES_IN} = require("../../common/constants");
 
 const UserController = {
     getByEmail: (email) => {
@@ -21,7 +23,7 @@ const UserController = {
         } else if (foundUser.password !== password) {
             throw new CustomError(ERROR_CODES.INVALID_EMAIL_OR_PASSWORD);
         } else {
-            return jwt.sign({email}, process.env.JWT_SECRET, {expiresIn: '1h'});
+            return jwt.sign({email}, JWT_SECRET, {expiresIn: JWT_EXPIRES_IN});
         }
     },
     signUp: async ({email, password, firstName, lastName}) => {
@@ -31,7 +33,7 @@ const UserController = {
             first_name: firstName,
             last_name: lastName
         });
-        return jwt.sign({email: newUser.email}, process.env.JWT_SECRET, {expiresIn: '1h'});
+        return jwt.sign({email: newUser.email}, JWT_SECRET, {expiresIn: JWT_EXPIRES_IN});
     }
 }
 

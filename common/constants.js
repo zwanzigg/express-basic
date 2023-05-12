@@ -16,5 +16,17 @@ const ERROR_CODES = {
         message: 'Unknown Error',
         details: message
     }),
+    UNAUTHORIZED: {
+        statusCode: 401,
+        message: 'Authentication Error',
+    },
+    FORBIDDEN: {
+        statusCode: 403,
+        message: 'Forbidden',
+    }
 }
-module.exports = { ERROR_CODES};
+
+const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN;
+
+module.exports = { ERROR_CODES, JWT_SECRET, JWT_EXPIRES_IN };

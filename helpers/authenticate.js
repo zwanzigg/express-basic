@@ -1,4 +1,6 @@
 const jwt = require('jsonwebtoken');
+const CustomError = require("./custom-error");
+const {ERROR_CODES} = require("../common/constants");
 
 const accessTokenSecret = process.env.JWT_SECRET;
 const authenticateJWT = (req, res, next) => {
@@ -9,13 +11,13 @@ const authenticateJWT = (req, res, next) => {
 
         jwt.verify(token, accessTokenSecret, (err, user) => {
             if (err) {
-                return res.sendStatus(403);
+                throw new CustomError(ERROR_CODES.FORBIDDEN);
             }
             req.user = user;
             next();
         });
     } else {
-        res.sendStatus(401);
+        throw new CustomError(ERROR_CODES.UNAUTHORIZED);
     }
 };
 

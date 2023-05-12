@@ -33,8 +33,8 @@ router.get('/me', authenticateJWT, async (req, res, next) => {
 router.post('/sign-up', async (req, res, next) => {
     if (req.body) {
         try {
-            const token = await UserController.signUp(req.body);
-            res.json({ token });
+            const accessToken = await UserController.signUp(req.body);
+            res.json({accessToken});
         } catch (err) {
             next(err);
         }
@@ -45,8 +45,8 @@ router.post('/sign-up', async (req, res, next) => {
 router.post('/sign-in', async (req, res, next) => {
     if (req.body) {
         try {
-            const token = await UserController.signIn(req.body);
-            res.json({ token });
+            const accessToken = await UserController.signIn(req.body);
+            res.json({accessToken});
 
         } catch (err) {
             next(err);
