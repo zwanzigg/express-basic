@@ -1,28 +1,40 @@
 const express = require('express')
 const router = express.Router();
 const UserController = require('../database/controllers/users');
+const authenticateJWT = require("../helpers/authenticate");
 
 router.all('/', (req, res, next) => {
     res.status(200);
     next();
 });
 
-router.get('/', async (req, res, next) => {
+router.get('/', authenticateJWT, async (req, res, next) => {
     try {
         const found = await UserController.getAll();
         res.send(found)
     } catch (err) {
-       next(err);
+        next(err);
+    }
+    res.end();
+})
+
+router.get('/me', authenticateJWT, async (req, res, next) => {
+    try {
+        const email = req.user.email;
+        const found = await UserController.getByEmail(email);
+        res.send(found)
+    } catch (err) {
+        next(err);
     }
     res.end();
 })
 
 
-router.post('/sign-up', async(req, res, next) => {
+router.post('/sign-up', async (req, res, next) => {
     if (req.body) {
         try {
-            const newUser = await UserController.create(req.body);
-            res.send(newUser);
+            const accessToken = await UserController.signUp(req.body);
+            res.json({accessToken});
         } catch (err) {
             next(err);
         }
@@ -30,23 +42,15 @@ router.post('/sign-up', async(req, res, next) => {
     }
 })
 
-router.post('/sign-in', async(req, res, next) => {
+router.post('/sign-in', async (req, res, next) => {
     if (req.body) {
         try {
-            const {email, password} = req.body;
-            const foundUser = await UserController.getByEmail(email);
-            if (!foundUser) {
-                res.status(400).send({message: 'User not found'});
-            } else if (foundUser.password !== password) {
-                res.status(400).send({message: 'Wrong password'});
-            } else {
-                res.send(foundUser);
-            }
+            const accessToken = await UserController.signIn(req.body);
+            res.json({accessToken});
 
         } catch (err) {
             next(err);
         }
-        res.end();
     }
 })
 

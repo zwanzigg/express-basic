@@ -6,6 +6,7 @@ const hostname = "localhost";
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const usersRouter = require("./routes/users");
+const errorHandler = require("./helpers/error-handler");
 
 mongoose.connect( process.env.DB_URL,
 {
@@ -23,6 +24,10 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 app.use("/api/users", usersRouter);
+
+app.use(errorHandler);
+
+
 
 app.listen(port, () =>
   console.log(`Server is listening at http://${hostname}:${port}`)
